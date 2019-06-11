@@ -2,25 +2,36 @@
 #coding: utf-8
 
 from flask import Flask, jsonify, send_file, make_response, request
-import base64
+import base64, validator
+from param import titles
 
 app = Flask(__name__)
+
+@app.errorhandler(400)
+def not_found(error):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 @app.errorhandler(405)
-def not_found(error):
+def not_method_not_allowed(error):
     return make_response(jsonify({'error': 'Method Not Allowed'}), 405)
 
 @app.errorhandler(500)
-def not_found(error):
+def not_internal_error(error):
     return make_response(jsonify({'error': 'Internal Server Error'}), 500)
 
 @app.route('/brends', methods=['POST'])
 def add_brends():
-    return jsonify(request.json), 201
+    validate_result = validator.check_brend(request.json)
+    if validate_result['result']!=titles['allow']:
+        request.json['error'] = validate_result
+        return jsonify(request.json), 422
+    else:
+        return jsonify(request.json), 201
+    
 
 @app.route('/brends', methods=['GET'])
 def get_brends():
@@ -54,7 +65,12 @@ def get_brend(brend_id):
 @app.route('/brends/<int:brend_id>', methods=['PUT'])
 def update_brend(brend_id):    
     request.json['id']=brend_id;
-    return jsonify(request.json)
+    validate_result = validator.check_brend(request.json)
+    if validate_result['result']!=titles['allow']:
+        request.json['error'] = validate_result
+        return jsonify(request.json), 422
+    else:
+        return jsonify(request.json)
 
 @app.route('/brends/<int:brend_id>', methods=['DELETE'])
 def delete_brend(brend_id):
@@ -62,7 +78,12 @@ def delete_brend(brend_id):
 
 @app.route('/logotypes', methods=['POST'])
 def add_logo():
-    return jsonify(request.json), 201
+    validate_result = validator.check_logo(request.json)
+    if validate_result['result']!=titles['allow']:
+        request.json['error'] = validate_result
+        return jsonify(request.json), 422
+    else:
+        return jsonify(request.json), 201
 
 @app.route('/logotypes', methods=['GET'])
 def get_logos():
@@ -100,7 +121,12 @@ def get_logo(logo_id):
 @app.route('/logotypes/<int:logo_id>', methods=['PUT'])
 def update_logo(logo_id):
     request.json['id']=logo_id;
-    return jsonify(request.json)
+    validate_result = validator.check_logo(request.json)
+    if validate_result['result']!=titles['allow']:
+        request.json['error'] = validate_result
+        return jsonify(request.json), 422
+    else:
+        return jsonify(request.json)
 
 @app.route('/logotypes/<int:logo_id>', methods=['DELETE'])
 def delete_logo(logo_id):
