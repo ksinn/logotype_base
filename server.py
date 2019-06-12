@@ -1,9 +1,9 @@
 #!/usr/local/bin/python
 #coding: utf-8
 
-from flask import Flask, jsonify, send_file, make_response, request
-import base64, validator
-from param import titles
+from flask import Flask, jsonify, send_file, make_response, request, abort
+import base64, validator, obj
+from param import titles, server as server_param
 
 app = Flask(__name__)
 
@@ -30,37 +30,20 @@ def add_brends():
         request.json['error'] = validate_result
         return jsonify(request.json), 422
     else:
+        obj.insert('brend', request.json)
         return jsonify(request.json), 201
     
 
 @app.route('/brends', methods=['GET'])
 def get_brends():
-    return jsonify([{
-        'id': 1,
-        'title': 'Nescafé',
-	'site': 'nescafe.com',
-	'product': 'Растворимый кофе',	
-        'industry': 'Напитки', 
-        'founded': 1938
-	}, {
-        'id': 2,
-        'title': 'Nescafé',
-	'site': 'nescafe.com',
-	'product': 'Растворимый кофе',	
-        'industry': 'Напитки', 
-        'founded': 1938
-	}])
+    return jsonify(obj.select_all('brend'))
 
 @app.route('/brends/<int:brend_id>', methods=['GET'])
 def get_brend(brend_id):
-    return jsonify({
-        'id': brend_id,
-        'title': 'Nescafé',
-	'site': 'nescafe.com',
-	'product': 'Растворимый кофе',	
-        'industry': 'Напитки', 
-        'founded': 1938
-	})
+    brend = obj.select_one('brend', brend_id)
+    if not brend:
+        abort(404)
+    return jsonify(brend)
 
 @app.route('/brends/<int:brend_id>', methods=['PUT'])
 def update_brend(brend_id):    
@@ -70,10 +53,12 @@ def update_brend(brend_id):
         request.json['error'] = validate_result
         return jsonify(request.json), 422
     else:
+        obj.update_brend(brend_id, request.json)
         return jsonify(request.json)
 
 @app.route('/brends/<int:brend_id>', methods=['DELETE'])
 def delete_brend(brend_id):
+    obj.delete('brend', brend_id)
     return jsonify({'result': 'True'})
 
 @app.route('/logotypes', methods=['POST'])
@@ -83,40 +68,19 @@ def add_logo():
         request.json['error'] = validate_result
         return jsonify(request.json), 422
     else:
+        obj.insert('logotype', request.json)
         return jsonify(request.json), 201
 
 @app.route('/logotypes', methods=['GET'])
 def get_logos():
-    with open('test_logo.png', 'rb') as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    return jsonify([{
-        'id': 1,
-        'brend_id': 1,
-	'high': '128',
-	'width': '128',	
-        'type': 'png',
-        'img': encoded_string
-	}, {
-        'id': 2,
-        'brend_id': 1,
-	'high': '128',
-	'width': '128',	
-        'type': 'png',
-        'img': encoded_string
-	}])
+    return jsonify(obj.select_all('logotype'))
 
 @app.route('/logotypes/<int:logo_id>', methods=['GET'])
 def get_logo(logo_id):
-    with open('test_logo.png', 'rb') as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    return jsonify({
-        'id': logo_id,
-        'brend_id': 1,
-	'high': '128',
-	'width': '128',	
-        'type': 'png',
-	'img': encoded_string
-	})
+    logo = obj.select_one('logotype', logo_id)
+    if not logo:
+        abort(404)
+    return jsonify(logo)
 
 @app.route('/logotypes/<int:logo_id>', methods=['PUT'])
 def update_logo(logo_id):
@@ -126,10 +90,12 @@ def update_logo(logo_id):
         request.json['error'] = validate_result
         return jsonify(request.json), 422
     else:
+        obj.update_logo(logo_id, request.json)
         return jsonify(request.json)
 
 @app.route('/logotypes/<int:logo_id>', methods=['DELETE'])
 def delete_logo(logo_id):
+    obj.delete('logotype', logo_id)
     return jsonify({'result': 'True'})
 
 @app.route('/brends/<int:brend_id>/logotypes', methods=['GET'])
@@ -154,4 +120,4 @@ def get_logos_by_brend(brend_id):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host = server_param['host'],port=server_param['port'])

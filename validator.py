@@ -1,12 +1,26 @@
 #!/usr/local/bin/python
 #coding: utf-8
 from param import titles
-from brend import (required_field_list as brend_required_field_list,
-int_field_list as brend_int_field_list,
-string_field_list as brend_string_field_list)
-from logotypes import (required_field_list as logo_required_field_list,
-int_field_list as logo_int_field_list,
-string_field_list as logo_string_field_list)
+
+brend_required_field_list = {'title', 'product', 'industry', 'founded'}
+
+brend_int_field_list = [{'name':'id','min':1,'max':2147483647},
+                    {'name':'founded','min':1860,'max':2025}]
+
+brend_string_field_list = [{'name':'title','min':1,'max':100},
+                       {'name':'site','min':2,'max':255},
+                       {'name':'product','min':1,'max':100},
+                       {'name':'industry','min':1,'max':100}]
+
+logo_required_field_list = {'brend_id', 'img'}
+
+logo_int_field_list = [{'name':'id','min':1,'max':2147483647},
+                  {'name':'brend_id','min':1,'max':2147483647},
+                  {'name':'high','min':5,'max':2048},
+                  {'name':'width','min':5,'max':2048}]
+
+logo_string_field_list = [{'name':'type','min':1,'max':7},
+                       {'name':'img','min':1,'max':2147483647255}]
 
 def _set_invalid(res, field, error):
     res['result'] = titles['failed']
