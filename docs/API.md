@@ -74,6 +74,6 @@ value — единственное значение с которым будет
 	}
 ]
 
-бужет эквевалентно SQL запросу:
+будет эквивалентно SQL запросу:
  
 select * from brend where id>1 and product = 'Выпечка' and founded between 1999 and 2015;
