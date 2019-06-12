@@ -22,6 +22,14 @@ logo_int_field_list = [{'name':'id','min':1,'max':2147483647},
 logo_string_field_list = [{'name':'type','min':1,'max':7},
                        {'name':'img','min':1,'max':2147483647255}]
 
+search_required_field_list = {'field', 'operator', 'value'}
+
+search_int_field_list = []
+
+search_string_field_list = [{'name':'field','min':2,'max':10},
+                       {'name':'operator','min':4,'max':7},
+                       {'name':'value','min':1,'max':257}]
+
 def _set_invalid(res, field, error):
     res['result'] = titles['failed']
     res[field] = titles[error]
@@ -60,4 +68,12 @@ def check_brend(brend):
     
 def check_logo(logo):
     return _validate(logo, logo_required_field_list, logo_int_field_list, logo_string_field_list)
+
+def check_search(params):
+    res=[];
+    for param in params:
+        r = _validate(param, search_required_field_list, search_int_field_list, search_string_field_list)
+        res.append(r)
+    return res;
+
 

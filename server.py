@@ -100,24 +100,25 @@ def delete_logo(logo_id):
 
 @app.route('/brends/<int:brend_id>/logotypes', methods=['GET'])
 def get_logos_by_brend(brend_id):    
-        with open('test_logo.png', 'rb') as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-        return jsonify([{
-        'id': 1,
-        'brend_id': brend_id,
-	'high': '128',
-	'width': '128',	
-        'type': 'png',        
-	'img': encoded_string
-	}, {
-        'id': 2,
-        'brend_id': brend_id,
-	'high': '128',
-	'width': '128',	
-        'type': 'png',
-	'img': encoded_string
-	}])
+        return jsonify(obj.search('logotype', [{'field':'brend_id',
+                                'operator':'equel',
+                                'value': str(brend_id)}]))
+    
+@app.route('/brends/search', methods=['post'])
+def search_brend():
+    validate_result = validator.check_search(request.json)
+    for vr in validate_result:
+        if vr['result'] !=titles['allow']:
+            return jsonify(request.json), 422
+    return jsonify(obj.search('brend', request.json))
 
-
+@app.route('/logotypes/search', methods=['post'])
+def search_logo():
+    validate_result = validator.check_search(request.json)
+    for vr in validate_result:
+        if vr['result'] !=titles['allow']:
+            return jsonify(request.json), 422
+    return jsonify(obj.search('logotype', request.json))
+    
 if __name__ == '__main__':
     app.run(host = server_param['host'],port=server_param['port'])

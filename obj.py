@@ -6,6 +6,7 @@ import db
 
 field_list = {'brend':['id','title', 'site', 'product', 'industry', 'founded'],
               'logotype':['id', 'brend_id', 'high', 'width', 'type', 'img']}
+operations = {'more':'>', 'less':'<', 'equel':'=', 'between':'between'}
 
 
 def _to_map(table, rows):
@@ -68,6 +69,17 @@ def update_logo(id, obj):
     par.append(id) 
     db.execute(qry_str, par)
 
-
-
-
+def search(table, params):
+    qry_str = "SELECT * from "+table+" WHERE ";
+    if len(params)==0:
+        qry_str = qry_str[:-6]    
+    for param in params:
+        qry_str+=" "+param['field']+" "+operations[param['operator']]+ " "
+        if param['operator'] == operations['between']:
+            qry_str+=param['value'][0] + " and " + param['value'][1]
+        else:
+            qry_str+=param['value']
+        qry_str+=" and" 
+    qry_str = qry_str[:-3]
+    res = db.select(qry_str, [])
+    return _to_map(table, res)
